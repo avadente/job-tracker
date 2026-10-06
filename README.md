@@ -49,6 +49,23 @@ python app.py
 
 Open <http://localhost:5000> (works from your Windows browser too when running under WSL).
 
+## Using MySQL installed on Windows (app running in WSL)
+
+If MySQL runs on Windows instead of inside WSL, WSL reaches it through the Windows host address, not `127.0.0.1`:
+
+1. Find the address from WSL: `ip route show default | awk '{print $3}'` (e.g. `172.17.0.1`) and set it as `DB_HOST` in `.env`.
+2. MySQL sees WSL connections as coming from a `172.x` address, so create the user for that host. In MySQL Shell, switch to SQL mode first (`\sql`, then `\connect root@localhost`):
+   ```sql
+   CREATE USER 'jobtracker'@'172.%' IDENTIFIED BY 'pick-a-strong-password';
+   GRANT ALL PRIVILEGES ON job_tracker.* TO 'jobtracker'@'172.%';
+   FLUSH PRIVILEGES;
+   ```
+3. Create the tables by running `schema.sql` (e.g. `\source` it in MySQL Shell, or open it in Workbench).
+
+To edit `.env` from PowerShell: `notepad '\\wsl.localhost\Ubuntu\home\<you>\job-tracker\.env'`.
+
+If the app stops connecting after a Windows restart, re-check the host address from step 1.
+
 ## Backups
 
 Your data lives in MySQL, not in this repo. To back it up:
