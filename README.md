@@ -62,13 +62,13 @@ If MySQL runs on Windows instead of inside WSL, WSL reaches it through the Windo
    ```
 3. Create the tables by running `schema.sql` (e.g. `\source` it in MySQL Shell, or open it in Workbench).
 
-### Upgrading an existing database
-
-If your database was created before a column was added, run the matching file in `migrations/` once (e.g. `\source migrations/001_add_deadline.sql` in MySQL Shell).
-
 To edit `.env` from PowerShell: `notepad '\\wsl.localhost\Ubuntu\home\<you>\job-tracker\.env'`.
 
 If the app stops connecting after a Windows restart, re-check the host address from step 1.
+
+## Upgrading an existing database
+
+If your database was created before a column was added, run the matching file in `migrations/` once (e.g. `\source migrations/001_add_deadline.sql` in MySQL Shell).
 
 ## Backups
 
