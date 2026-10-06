@@ -29,21 +29,21 @@
 
   <main>
     <section id="table-view">
-      <table>
-        <thead>
-          <tr>
-            <th data-sort="company">Company</th>
-            <th data-sort="role">Role</th>
-            <th data-sort="status">Status</th>
-            <th data-sort="deadline">Deadline</th>
-            <th data-sort="date_applied">Applied</th>
-            <th data-sort="next_action_date">Next action</th>
-            <th data-sort="location">Location</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="rows"></tbody>
-      </table>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th data-sort="company">Company &amp; role</th>
+              <th data-sort="status">Status</th>
+              <th data-sort="deadline">Deadline</th>
+              <th data-sort="date_applied">Applied</th>
+              <th data-sort="next_action_date">Next action</th>
+              <th data-sort="location">Location</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
       <p id="empty" class="empty" hidden>No applications yet. Add your first one!</p>
     </section>
 

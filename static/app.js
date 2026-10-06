@@ -55,24 +55,31 @@ function isOverdue(a) {
   return a.next_action_date && a.next_action_date <= today() && !CLOSED.has(a.status);
 }
 
+function fmtDate(isoDate) {
+  return new Date(isoDate + "T00:00").toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+}
+
+const blank = '<span class="muted">—</span>';
+
 function daysUntil(isoDate) {
   return Math.round((new Date(isoDate + "T00:00") - new Date(today() + "T00:00")) / 86400000);
 }
 
 // Deadlines only matter until you've applied, so only flag them while on the wishlist.
 function deadlineHtml(a) {
-  if (!a.deadline) return "";
+  if (!a.deadline) return blank;
   const days = daysUntil(a.deadline);
   let cls = "";
   if (a.status === "wishlist" && days < 0) cls = "deadline-passed";
   else if (a.status === "wishlist" && days <= 7) cls = "overdue";
-  return `<span class="${cls}">${esc(a.deadline)}</span>`;
+  return `<span class="${cls}">${fmtDate(a.deadline)}</span>`;
 }
 
 function nextActionHtml(a) {
-  if (!a.next_action && !a.next_action_date) return "";
+  if (!a.next_action && !a.next_action_date) return blank;
   const cls = isOverdue(a) ? "overdue" : "";
-  return `<span class="${cls}">${esc(a.next_action_date || "")} ${esc(a.next_action || "")}</span>`;
+  return `<span class="${cls}">${a.next_action_date ? fmtDate(a.next_action_date) : ""}</span>
+    ${a.next_action ? `<div class="sub">${esc(a.next_action)}</div>` : ""}`;
 }
 
 function render() {
@@ -103,15 +110,19 @@ function renderTable(apps) {
     return String(av).localeCompare(String(bv)) * dir;
   });
   $("#rows").innerHTML = apps.map((a) => `
-    <tr data-id="${a.id}" class="${isOverdue(a) ? "row-overdue" : ""}">
-      <td><strong>${esc(a.company)}</strong>${a.materials.length ? ' <span class="tag" title="Cover letter ready">letter</span>' : ""}</td>
-      <td>${a.url ? `<a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.role)}</a>` : esc(a.role)}</td>
+    <tr data-id="${a.id}" class="${isOverdue(a) ? "row-overdue" : ""}" title="Click to edit">
+      <td class="company-cell">
+        <div class="company">${esc(a.company)}${a.materials.length ? ' <span class="tag" title="Cover letter ready">Letter</span>' : ""}</div>
+        <div class="sub">${a.url ? `<a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.role)} ↗</a>` : esc(a.role)}</div>
+      </td>
       <td><span class="badge s-${a.status}">${a.status}</span></td>
-      <td>${deadlineHtml(a)}</td>
-      <td>${esc(a.date_applied || "")}</td>
+      <td class="nowrap">${deadlineHtml(a)}</td>
+      <td class="nowrap">${a.date_applied ? fmtDate(a.date_applied) : blank}</td>
       <td>${nextActionHtml(a)}</td>
-      <td>${esc(a.location || "")}${a.work_mode ? ` <small>(${a.work_mode})</small>` : ""}</td>
-      <td><button class="link edit">Edit</button></td>
+      <td class="location-cell">
+        <div class="truncate" title="${esc(a.location || "")}">${a.location ? esc(a.location) : blank}</div>
+        ${a.work_mode ? `<span class="mode">${a.work_mode}</span>` : ""}
+      </td>
     </tr>`).join("");
   $("#empty").hidden = apps.length > 0;
   document.querySelectorAll("th[data-sort]").forEach((th) => {
@@ -183,9 +194,10 @@ $("#search").addEventListener("input", render);
 $("#status-filter").addEventListener("change", render);
 
 document.addEventListener("click", (e) => {
-  const target = e.target.closest(".edit, .card");
+  if (e.target.closest("a")) return; // let links (e.g. the posting) open normally
+  const target = e.target.closest("#rows tr, .card");
   if (!target) return;
-  const id = Number(target.closest("[data-id]").dataset.id);
+  const id = Number(target.dataset.id);
   openForm(state.apps.find((a) => a.id === id));
 });
 
@@ -195,13 +207,17 @@ document.querySelectorAll("th[data-sort]").forEach((th) => th.addEventListener("
   render();
 }));
 
-document.querySelectorAll(".view-toggle button").forEach((btn) => btn.addEventListener("click", () => {
-  state.view = btn.dataset.view;
-  document.querySelectorAll(".view-toggle button").forEach((b) => b.classList.toggle("active", b === btn));
-  $("#table-view").hidden = state.view !== "table";
-  $("#board-view").hidden = state.view !== "board";
+function setView(view) {
+  state.view = view;
+  document.querySelectorAll(".view-toggle button").forEach((b) => b.classList.toggle("active", b.dataset.view === view));
+  $("#table-view").hidden = view !== "table";
+  $("#board-view").hidden = view !== "board";
+  history.replaceState(null, "", view === "board" ? "#board" : location.pathname);
   render();
-}));
+}
+
+document.querySelectorAll(".view-toggle button").forEach((btn) => btn.addEventListener("click", () => setView(btn.dataset.view)));
+if (location.hash === "#board") setView("board");
 
 // Drag cards between board columns to change status
 document.addEventListener("dragstart", (e) => {
