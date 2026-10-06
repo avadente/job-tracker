@@ -104,7 +104,7 @@ function renderTable(apps) {
   });
   $("#rows").innerHTML = apps.map((a) => `
     <tr data-id="${a.id}" class="${isOverdue(a) ? "row-overdue" : ""}">
-      <td><strong>${esc(a.company)}</strong></td>
+      <td><strong>${esc(a.company)}</strong>${a.materials.length ? ' <span class="tag" title="Cover letter ready">letter</span>' : ""}</td>
       <td>${a.url ? `<a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.role)}</a>` : esc(a.role)}</td>
       <td><span class="badge s-${a.status}">${a.status}</span></td>
       <td>${deadlineHtml(a)}</td>
@@ -142,6 +142,11 @@ function openForm(app) {
   for (const el of form.elements) {
     if (el.name) el.value = data[el.name] ?? "";
   }
+  const materials = app?.materials ?? [];
+  $("#materials").innerHTML = materials.length ? `<strong>Cover letters</strong><ul>${materials.map((m) => `
+    <li>${esc(m.created_at.slice(0, 10))} —
+      <a href="/materials/${m.id}/pdf" target="_blank">PDF</a> ·
+      <a href="/materials/${m.id}/docx">Word</a></li>`).join("")}</ul>` : "";
   dialog.showModal();
 }
 

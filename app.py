@@ -5,7 +5,7 @@ from datetime import date, datetime
 
 import pymysql
 from dotenv import load_dotenv
-from flask import Flask, Response, g, jsonify, render_template, request
+from flask import Flask, Response, abort, g, jsonify, render_template, request, send_file
 
 load_dotenv()
 
@@ -16,7 +16,9 @@ WORK_MODES = ["onsite", "hybrid", "remote"]
 FIELDS = [
     "company", "role", "url", "location", "work_mode", "status", "date_applied", "deadline",
     "salary_range", "contact", "resume_version", "next_action", "next_action_date", "notes",
+    "job_description",
 ]
+EXPORT_FIELDS = [f for f in FIELDS if f != "job_description"]
 DATE_FIELDS = {"date_applied", "deadline", "next_action_date"}
 
 
@@ -83,7 +85,12 @@ def index():
 def list_applications():
     with get_db().cursor() as cur:
         cur.execute("SELECT * FROM applications ORDER BY updated_at DESC")
-        return jsonify([serialize(r) for r in cur.fetchall()])
+        apps = [serialize(r) for r in cur.fetchall()]
+        cur.execute("SELECT id, application_id, kind, created_at FROM materials ORDER BY created_at DESC")
+        materials = [serialize(r) for r in cur.fetchall()]
+    for a in apps:
+        a["materials"] = [m for m in materials if m["application_id"] == a["id"]]
+    return jsonify(apps)
 
 
 @app.post("/api/applications")
@@ -128,15 +135,27 @@ def delete_application(app_id):
 @app.get("/export.csv")
 def export_csv():
     with get_db().cursor() as cur:
-        cur.execute(f"SELECT id, {', '.join(FIELDS)}, created_at, updated_at FROM applications ORDER BY id")
+        cur.execute(f"SELECT id, {', '.join(EXPORT_FIELDS)}, created_at, updated_at FROM applications ORDER BY id")
         rows = cur.fetchall()
     buf = io.StringIO()
-    writer = csv.DictWriter(buf, fieldnames=["id", *FIELDS, "created_at", "updated_at"])
+    writer = csv.DictWriter(buf, fieldnames=["id", *EXPORT_FIELDS, "created_at", "updated_at"])
     writer.writeheader()
     writer.writerows(rows)
     filename = f"applications-{date.today().isoformat()}.csv"
     return Response(buf.getvalue(), mimetype="text/csv",
                     headers={"Content-Disposition": f"attachment; filename={filename}"})
+
+
+@app.get("/materials/<int:material_id>/<fmt>")
+def download_material(material_id, fmt):
+    if fmt not in ("pdf", "docx"):
+        abort(404)
+    with get_db().cursor() as cur:
+        cur.execute(f"SELECT {fmt}_path AS path FROM materials WHERE id = %s", (material_id,))
+        row = cur.fetchone()
+    if not row or not row["path"] or not os.path.exists(row["path"]):
+        abort(404)
+    return send_file(row["path"], as_attachment=(fmt == "docx"))
 
 
 if __name__ == "__main__":

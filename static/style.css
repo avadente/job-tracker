@@ -111,3 +111,9 @@ dialog::backdrop { background: rgb(0 0 0 / 0.4); }
   .grid { grid-template-columns: 1fr; }
   header, main { padding-left: 16px; padding-right: 16px; }
 }
+
+.tag { font-size: 11px; padding: 1px 6px; border-radius: 4px; background: var(--accent); color: #fff; vertical-align: middle; }
+details summary { cursor: pointer; font-size: 12px; color: var(--muted); }
+details textarea { width: 100%; margin-top: 6px; }
+#materials ul { margin: 4px 0 0; padding-left: 18px; }
+#materials a { color: var(--accent); }
