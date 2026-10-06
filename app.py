@@ -14,10 +14,10 @@ app = Flask(__name__)
 STATUSES = ["wishlist", "applied", "screening", "interview", "offer", "rejected", "ghosted", "withdrawn"]
 WORK_MODES = ["onsite", "hybrid", "remote"]
 FIELDS = [
-    "company", "role", "url", "location", "work_mode", "status", "date_applied",
+    "company", "role", "url", "location", "work_mode", "status", "date_applied", "deadline",
     "salary_range", "contact", "resume_version", "next_action", "next_action_date", "notes",
 ]
-DATE_FIELDS = {"date_applied", "next_action_date"}
+DATE_FIELDS = {"date_applied", "deadline", "next_action_date"}
 
 
 def get_db():

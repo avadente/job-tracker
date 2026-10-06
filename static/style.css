@@ -80,6 +80,8 @@ td a { color: var(--accent); }
 
 .overdue { color: var(--overdue); font-weight: 600; }
 .row-overdue { background: var(--overdue-bg); }
+.deadline-passed { color: var(--muted); text-decoration: line-through; }
+.card small { display: block; }
 
 .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; text-transform: capitalize; background: var(--border); }
 .s-applied { background: #dbe7fd; color: #1e4fa8; }

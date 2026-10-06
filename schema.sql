@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS applications (
     status          ENUM('wishlist', 'applied', 'screening', 'interview', 'offer', 'rejected', 'ghosted', 'withdrawn')
                     NOT NULL DEFAULT 'wishlist',
     date_applied    DATE,
+    deadline        DATE,
     salary_range    VARCHAR(100),
     contact         VARCHAR(300),
     resume_version  VARCHAR(100),

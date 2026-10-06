@@ -55,6 +55,20 @@ function isOverdue(a) {
   return a.next_action_date && a.next_action_date <= today() && !CLOSED.has(a.status);
 }
 
+function daysUntil(isoDate) {
+  return Math.round((new Date(isoDate + "T00:00") - new Date(today() + "T00:00")) / 86400000);
+}
+
+// Deadlines only matter until you've applied, so only flag them while on the wishlist.
+function deadlineHtml(a) {
+  if (!a.deadline) return "";
+  const days = daysUntil(a.deadline);
+  let cls = "";
+  if (a.status === "wishlist" && days < 0) cls = "deadline-passed";
+  else if (a.status === "wishlist" && days <= 7) cls = "overdue";
+  return `<span class="${cls}">${esc(a.deadline)}</span>`;
+}
+
 function nextActionHtml(a) {
   if (!a.next_action && !a.next_action_date) return "";
   const cls = isOverdue(a) ? "overdue" : "";
@@ -93,6 +107,7 @@ function renderTable(apps) {
       <td><strong>${esc(a.company)}</strong></td>
       <td>${a.url ? `<a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.role)}</a>` : esc(a.role)}</td>
       <td><span class="badge s-${a.status}">${a.status}</span></td>
+      <td>${deadlineHtml(a)}</td>
       <td>${esc(a.date_applied || "")}</td>
       <td>${nextActionHtml(a)}</td>
       <td>${esc(a.location || "")}${a.work_mode ? ` <small>(${a.work_mode})</small>` : ""}</td>
@@ -113,6 +128,7 @@ function renderBoard(apps) {
       <div class="card ${isOverdue(a) ? "row-overdue" : ""}" draggable="true" data-id="${a.id}">
         <strong>${esc(a.company)}</strong>
         <div>${esc(a.role)}</div>
+        ${a.deadline ? `<small>Deadline: ${deadlineHtml(a)}</small>` : ""}
         ${a.next_action_date ? `<small>${nextActionHtml(a)}</small>` : ""}
       </div>`).join("");
   });
