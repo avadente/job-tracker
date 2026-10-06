@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Job Tracker</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <h1>Job Tracker</h1>
+    <div class="toolbar">
+      <input id="search" type="search" placeholder="Search company, role, notes…">
+      <select id="status-filter">
+        <option value="">All statuses</option>
+        {% for s in statuses %}<option value="{{ s }}">{{ s|capitalize }}</option>{% endfor %}
+      </select>
+      <div class="view-toggle">
+        <button data-view="table" class="active">Table</button>
+        <button data-view="board">Board</button>
+      </div>
+      <a class="button" href="/export.csv">Export CSV</a>
+      <button id="add-btn" class="primary">+ Add application</button>
+    </div>
+  </header>
+
+  <section id="stats" class="stats"></section>
+  <div id="error" class="error" hidden></div>
+
+  <main>
+    <section id="table-view">
+      <table>
+        <thead>
+          <tr>
+            <th data-sort="company">Company</th>
+            <th data-sort="role">Role</th>
+            <th data-sort="status">Status</th>
+            <th data-sort="date_applied">Applied</th>
+            <th data-sort="next_action_date">Next action</th>
+            <th data-sort="location">Location</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <p id="empty" class="empty" hidden>No applications yet. Add your first one!</p>
+    </section>
+
+    <section id="board-view" class="board" hidden>
+      {% for s in statuses %}
+      <div class="column" data-status="{{ s }}">
+        <h3>{{ s|capitalize }} <span class="count"></span></h3>
+        <div class="cards"></div>
+      </div>
+      {% endfor %}
+    </section>
+  </main>
+
+  <dialog id="form-dialog">
+    <form id="app-form" method="dialog">
+      <h2 id="form-title">Add application</h2>
+      <input type="hidden" name="id">
+      <div class="grid">
+        <label>Company* <input name="company" required></label>
+        <label>Role* <input name="role" required></label>
+        <label>Status
+          <select name="status">
+            {% for s in statuses %}<option value="{{ s }}">{{ s|capitalize }}</option>{% endfor %}
+          </select>
+        </label>
+        <label>Date applied <input type="date" name="date_applied"></label>
+        <label class="wide">Job posting URL <input type="url" name="url"></label>
+        <label>Location <input name="location"></label>
+        <label>Work mode
+          <select name="work_mode">
+            <option value="">—</option>
+            {% for m in work_modes %}<option value="{{ m }}">{{ m|capitalize }}</option>{% endfor %}
+          </select>
+        </label>
+        <label>Salary range <input name="salary_range"></label>
+        <label>Resume version <input name="resume_version"></label>
+        <label class="wide">Contact <input name="contact" placeholder="Name, email, LinkedIn…"></label>
+        <label>Next action <input name="next_action" placeholder="e.g. Follow up with recruiter"></label>
+        <label>Next action date <input type="date" name="next_action_date"></label>
+        <label class="wide">Notes <textarea name="notes" rows="4"></textarea></label>
+      </div>
+      <div class="actions">
+        <button type="button" id="delete-btn" class="danger">Delete</button>
+        <span class="spacer"></span>
+        <button type="button" id="cancel-btn">Cancel</button>
+        <button type="submit" class="primary">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>window.STATUSES = {{ statuses|tojson }};</script>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
