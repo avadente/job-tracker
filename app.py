@@ -159,4 +159,5 @@ def download_material(material_id, fmt):
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=int(os.getenv("FLASK_PORT", "5000")), debug=True)
+    app.run(host="127.0.0.1", port=int(os.getenv("FLASK_PORT", "5000")),
+            debug=os.getenv("FLASK_DEBUG", "1") == "1")
