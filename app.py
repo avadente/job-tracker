@@ -11,7 +11,9 @@ load_dotenv()
 
 app = Flask(__name__)
 
-STATUSES = ["wishlist", "applied", "interview", "offer", "rejected", "ghosted", "withdrawn"]
+STATUSES = ["wishlist", "applied", "assessment", "interview", "offer", "rejected", "withdrawn"]
+# Display names for statuses whose label isn't just the capitalized value
+STATUS_LABELS = {s: s.capitalize() for s in STATUSES} | {"assessment": "Take assessment"}
 WORK_MODES = ["onsite", "hybrid", "remote"]
 FIELDS = [
     "company", "role", "url", "location", "work_mode", "status", "date_applied", "deadline",
@@ -78,7 +80,7 @@ def db_unavailable(err):
 
 @app.route("/")
 def index():
-    return render_template("index.html", statuses=STATUSES, work_modes=WORK_MODES)
+    return render_template("index.html", statuses=STATUSES, status_labels=STATUS_LABELS, work_modes=WORK_MODES)
 
 
 @app.get("/api/applications")

@@ -5,7 +5,7 @@ const dialog = $("#form-dialog");
 const form = $("#app-form");
 
 const today = () => new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD in local time
-const CLOSED = new Set(["rejected", "ghosted", "withdrawn"]);
+const CLOSED = new Set(["rejected", "withdrawn"]);
 
 function esc(s) {
   return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -115,7 +115,7 @@ function renderTable(apps) {
         <div class="company">${esc(a.company)}${a.materials.length ? ' <span class="tag" title="Cover letter ready">Letter</span>' : ""}</div>
         <div class="sub">${a.url ? `<a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.role)} ↗</a>` : esc(a.role)}</div>
       </td>
-      <td><span class="badge s-${a.status}">${a.status}</span></td>
+      <td><span class="badge s-${a.status}">${window.STATUS_LABELS[a.status]}</span></td>
       <td class="nowrap">${deadlineHtml(a)}</td>
       <td class="nowrap">${a.date_applied ? fmtDate(a.date_applied) : blank}</td>
       <td>${nextActionHtml(a)}</td>

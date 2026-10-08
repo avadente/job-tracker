@@ -13,7 +13,7 @@
       <input id="search" type="search" placeholder="Search company, role, notes…">
       <select id="status-filter">
         <option value="">All statuses</option>
-        {% for s in statuses %}<option value="{{ s }}">{{ s|capitalize }}</option>{% endfor %}
+        {% for s in statuses %}<option value="{{ s }}">{{ status_labels[s] }}</option>{% endfor %}
       </select>
       <div class="view-toggle">
         <button data-view="table" class="active">Table</button>
@@ -50,7 +50,7 @@
     <section id="board-view" class="board" hidden>
       {% for s in statuses %}
       <div class="column" data-status="{{ s }}">
-        <h3>{{ s|capitalize }} <span class="count"></span></h3>
+        <h3>{{ status_labels[s] }} <span class="count"></span></h3>
         <div class="cards"></div>
       </div>
       {% endfor %}
@@ -66,7 +66,7 @@
         <label>Role* <input name="role" required></label>
         <label>Status
           <select name="status">
-            {% for s in statuses %}<option value="{{ s }}">{{ s|capitalize }}</option>{% endfor %}
+            {% for s in statuses %}<option value="{{ s }}">{{ status_labels[s] }}</option>{% endfor %}
           </select>
         </label>
         <label>Date applied <input type="date" name="date_applied"></label>
@@ -100,7 +100,8 @@
     </form>
   </dialog>
 
-  <script>window.STATUSES = {{ statuses|tojson }};</script>
+  <script>window.STATUSES = {{ statuses|tojson }};
+    window.STATUS_LABELS = {{ status_labels|tojson }};</script>
   <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>
