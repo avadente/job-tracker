@@ -114,7 +114,6 @@ tbody tr.row-overdue:hover { background: color-mix(in srgb, var(--overdue) 14%, 
 
 .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 500; text-transform: capitalize; background: var(--border); white-space: nowrap; }
 .s-applied { background: #dbe7fd; color: #1e4fa8; }
-.s-screening { background: #e6defc; color: #5b3aa8; }
 .s-interview { background: #fdf0c9; color: #8a6200; }
 .s-offer { background: #d6f3de; color: #1d7a3a; }
 .s-rejected, .s-ghosted, .s-withdrawn { background: #eceef1; color: #6b7280; }

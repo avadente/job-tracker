@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS applications (
     url             VARCHAR(1000),
     location        VARCHAR(200),
     work_mode       ENUM('onsite', 'hybrid', 'remote'),
-    status          ENUM('wishlist', 'applied', 'screening', 'interview', 'offer', 'rejected', 'ghosted', 'withdrawn')
+    status          ENUM('wishlist', 'applied', 'interview', 'offer', 'rejected', 'ghosted', 'withdrawn')
                     NOT NULL DEFAULT 'wishlist',
     date_applied    DATE,
     deadline        DATE,

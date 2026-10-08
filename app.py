@@ -11,7 +11,7 @@ load_dotenv()
 
 app = Flask(__name__)
 
-STATUSES = ["wishlist", "applied", "screening", "interview", "offer", "rejected", "ghosted", "withdrawn"]
+STATUSES = ["wishlist", "applied", "interview", "offer", "rejected", "ghosted", "withdrawn"]
 WORK_MODES = ["onsite", "hybrid", "remote"]
 FIELDS = [
     "company", "role", "url", "location", "work_mode", "status", "date_applied", "deadline",
