@@ -115,8 +115,17 @@ def update_application(app_id):
         raise ValueError("No fields to update")
     if "company" in data and not data["company"] or "role" in data and not data["role"]:
         raise ValueError("Company and role cannot be empty")
-    assignments = ", ".join(f"{k} = %s" for k in data)
     with get_db().cursor() as cur:
+        cur.execute("SELECT status, date_applied FROM applications WHERE id = %s", (app_id,))
+        current = cur.fetchone()
+        if current is None:
+            return jsonify(error="Not found"), 404
+        # Moving from wishlist to applied stamps today's date, unless the date was edited in the same save
+        stored_date = current["date_applied"] and current["date_applied"].isoformat()
+        if (current["status"] == "wishlist" and data.get("status") == "applied"
+                and data.get("date_applied", stored_date) == stored_date):
+            data["date_applied"] = date.today().isoformat()
+        assignments = ", ".join(f"{k} = %s" for k in data)
         cur.execute(f"UPDATE applications SET {assignments} WHERE id = %s", [*data.values(), app_id])
         cur.execute("SELECT * FROM applications WHERE id = %s", (app_id,))
         row = cur.fetchone()
