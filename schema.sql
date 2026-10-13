@@ -13,16 +13,13 @@ CREATE TABLE IF NOT EXISTS applications (
     date_applied    DATE,
     deadline        DATE,
     salary_range    VARCHAR(100),
-    next_action     VARCHAR(300),
-    next_action_date DATE,
     notes           TEXT,
     assessment      ENUM('Y', 'N') NOT NULL DEFAULT 'N',
     assessment_completed BOOLEAN NOT NULL DEFAULT FALSE,
     job_description MEDIUMTEXT,
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_status (status),
-    INDEX idx_next_action_date (next_action_date)
+    INDEX idx_status (status)
 );
 
 CREATE TABLE IF NOT EXISTS materials (

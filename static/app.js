@@ -46,13 +46,9 @@ function filtered() {
   return state.apps.filter((a) => {
     if (status && a.status !== status) return false;
     if (!q) return true;
-    return [a.company, a.role, a.location, a.notes, a.next_action]
+    return [a.company, a.role, a.location, a.notes]
       .some((v) => v && v.toLowerCase().includes(q));
   });
-}
-
-function isOverdue(a) {
-  return a.next_action_date && a.next_action_date <= today() && !CLOSED.has(a.status);
 }
 
 function fmtDate(isoDate) {
@@ -75,13 +71,6 @@ function deadlineHtml(a) {
   return `<span class="${cls}">${fmtDate(a.deadline)}</span>`;
 }
 
-function nextActionHtml(a) {
-  if (!a.next_action && !a.next_action_date) return blank;
-  const cls = isOverdue(a) ? "overdue" : "";
-  return `<span class="${cls}">${a.next_action_date ? fmtDate(a.next_action_date) : ""}</span>
-    ${a.next_action ? `<div class="sub">${esc(a.next_action)}</div>` : ""}`;
-}
-
 // Only shown when the application has an assessment to take
 function assessmentTag(a) {
   if (a.assessment !== "Y") return "";
@@ -101,13 +90,11 @@ function renderStats() {
   const counts = Object.fromEntries(window.STATUSES.map((s) => [s, 0]));
   state.apps.forEach((a) => counts[a.status]++);
   const active = state.apps.filter((a) => !CLOSED.has(a.status) && a.status !== "wishlist").length;
-  const overdue = state.apps.filter(isOverdue).length;
   $("#stats").innerHTML = `
     <div><strong>${state.apps.length}</strong> total</div>
     <div><strong>${active}</strong> active</div>
     <div><strong>${counts.interview}</strong> interviewing</div>
-    <div><strong>${counts.offer}</strong> offers</div>
-    <div class="${overdue ? "overdue" : ""}"><strong>${overdue}</strong> follow-ups due</div>`;
+    <div><strong>${counts.offer}</strong> offers</div>`;
 }
 
 function renderTable(apps) {
@@ -118,7 +105,7 @@ function renderTable(apps) {
     return String(av).localeCompare(String(bv)) * dir;
   });
   $("#rows").innerHTML = apps.map((a) => `
-    <tr data-id="${a.id}" class="${isOverdue(a) ? "row-overdue" : ""}" title="Click to edit">
+    <tr data-id="${a.id}" title="Click to edit">
       <td class="company-cell">
         <div class="company">${esc(a.company)}${a.materials.length ? ' <span class="tag" title="Cover letter ready">Letter</span>' : ""}</div>
         <div class="sub">${a.url ? `<a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.role)} ↗</a>` : esc(a.role)}</div>
@@ -126,7 +113,6 @@ function renderTable(apps) {
       <td><span class="badge s-${a.status}">${window.STATUS_LABELS[a.status]}</span>${assessmentTag(a)}</td>
       <td class="nowrap">${deadlineHtml(a)}</td>
       <td class="nowrap">${a.date_applied ? fmtDate(a.date_applied) : blank}</td>
-      <td>${nextActionHtml(a)}</td>
       <td class="location-cell">
         <div class="truncate" title="${esc(a.location || "")}">${a.location ? esc(a.location) : blank}</div>
         ${a.work_mode ? `<span class="mode">${a.work_mode}</span>` : ""}
@@ -144,12 +130,11 @@ function renderBoard(apps) {
     const items = apps.filter((a) => a.status === col.dataset.status);
     col.querySelector(".count").textContent = items.length;
     col.querySelector(".cards").innerHTML = items.map((a) => `
-      <div class="card ${isOverdue(a) ? "row-overdue" : ""}" draggable="true" data-id="${a.id}">
+      <div class="card" draggable="true" data-id="${a.id}">
         <strong>${esc(a.company)}</strong>
         <div>${esc(a.role)}</div>
         ${assessmentTag(a) ? `<small>${assessmentTag(a)}</small>` : ""}
         ${a.deadline ? `<small>Deadline: ${deadlineHtml(a)}</small>` : ""}
-        ${a.next_action_date ? `<small>${nextActionHtml(a)}</small>` : ""}
       </div>`).join("");
   });
 }

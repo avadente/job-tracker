@@ -37,7 +37,6 @@
               <th data-sort="status">Status</th>
               <th data-sort="deadline">Deadline</th>
               <th data-sort="date_applied">Applied</th>
-              <th data-sort="next_action_date">Next action</th>
               <th data-sort="location">Location</th>
             </tr>
           </thead>
@@ -89,8 +88,6 @@
             {% for m in work_modes %}<option value="{{ m }}">{{ m|capitalize }}</option>{% endfor %}
           </select>
         </label>
-        <label>Next action <input name="next_action" placeholder="e.g. Follow up with recruiter"></label>
-        <label>Next action date <input type="date" name="next_action_date"></label>
         <label class="wide">Notes <textarea name="notes" rows="4"></textarea></label>
         <details class="wide">
           <summary>Job description</summary>

@@ -1,6 +1,6 @@
 # Job Tracker
 
-A small, self-hosted job application tracker: Flask + MySQL, with a table view, a drag-and-drop Kanban board, search/filter, follow-up reminders, and CSV export.
+A small, self-hosted job application tracker: Flask + MySQL, with a table view, a drag-and-drop Kanban board, search/filter, and CSV export.
 
 ## Features
 
@@ -8,8 +8,7 @@ A small, self-hosted job application tracker: Flask + MySQL, with a table view, 
 - Statuses: wishlist → applied → interview → offer (plus rejected / withdrawn)
 - Take assessment (Y/N) per application, with an "assessment completed" checkbox when it is Y
 - **Table view** with sortable columns, and **Board view** — drag cards between columns to change status
-- Follow-ups whose "next action date" is today or earlier are highlighted
-- Summary stats (total, active, interviewing, offers, follow-ups due)
+- Summary stats (total, active, interviewing, offers)
 - One-click CSV export
 
 ## Setup (Ubuntu / WSL)

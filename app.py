@@ -17,11 +17,11 @@ STATUS_LABELS = {s: s.capitalize() for s in STATUSES}
 WORK_MODES = ["onsite", "hybrid", "remote"]
 FIELDS = [
     "company", "role", "url", "location", "work_mode", "status", "date_applied", "deadline",
-    "salary_range", "next_action", "next_action_date", "notes",
+    "salary_range", "notes",
     "assessment", "assessment_completed", "job_description",
 ]
 EXPORT_FIELDS = [f for f in FIELDS if f != "job_description"]
-DATE_FIELDS = {"date_applied", "deadline", "next_action_date"}
+DATE_FIELDS = {"date_applied", "deadline"}
 
 
 def get_db():
