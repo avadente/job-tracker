@@ -46,7 +46,7 @@ function filtered() {
   return state.apps.filter((a) => {
     if (status && a.status !== status) return false;
     if (!q) return true;
-    return [a.company, a.role, a.location, a.notes, a.contact, a.next_action]
+    return [a.company, a.role, a.location, a.notes, a.next_action]
       .some((v) => v && v.toLowerCase().includes(q));
   });
 }
@@ -82,6 +82,14 @@ function nextActionHtml(a) {
     ${a.next_action ? `<div class="sub">${esc(a.next_action)}</div>` : ""}`;
 }
 
+// Only shown when the application has an assessment to take
+function assessmentTag(a) {
+  if (a.assessment !== "Y") return "";
+  return a.assessment_completed
+    ? '<span class="tag assess-done">Assessment ✓</span>'
+    : '<span class="tag assess-due">Assessment due</span>';
+}
+
 function render() {
   renderStats();
   const apps = filtered();
@@ -115,7 +123,7 @@ function renderTable(apps) {
         <div class="company">${esc(a.company)}${a.materials.length ? ' <span class="tag" title="Cover letter ready">Letter</span>' : ""}</div>
         <div class="sub">${a.url ? `<a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.role)} ↗</a>` : esc(a.role)}</div>
       </td>
-      <td><span class="badge s-${a.status}">${window.STATUS_LABELS[a.status]}</span></td>
+      <td><span class="badge s-${a.status}">${window.STATUS_LABELS[a.status]}</span>${assessmentTag(a)}</td>
       <td class="nowrap">${deadlineHtml(a)}</td>
       <td class="nowrap">${a.date_applied ? fmtDate(a.date_applied) : blank}</td>
       <td>${nextActionHtml(a)}</td>
@@ -139,6 +147,7 @@ function renderBoard(apps) {
       <div class="card ${isOverdue(a) ? "row-overdue" : ""}" draggable="true" data-id="${a.id}">
         <strong>${esc(a.company)}</strong>
         <div>${esc(a.role)}</div>
+        ${assessmentTag(a) ? `<small>${assessmentTag(a)}</small>` : ""}
         ${a.deadline ? `<small>Deadline: ${deadlineHtml(a)}</small>` : ""}
         ${a.next_action_date ? `<small>${nextActionHtml(a)}</small>` : ""}
       </div>`).join("");
@@ -149,10 +158,13 @@ function openForm(app) {
   form.reset();
   $("#form-title").textContent = app ? "Edit application" : "Add application";
   $("#delete-btn").hidden = !app;
-  const data = app || { status: "applied", date_applied: today() };
+  const data = app || { status: "applied", date_applied: today(), assessment: "N" };
   for (const el of form.elements) {
-    if (el.name) el.value = data[el.name] ?? "";
+    if (!el.name) continue;
+    if (el.type === "checkbox") el.checked = Boolean(data[el.name]);
+    else el.value = data[el.name] ?? "";
   }
+  syncAssessmentField();
   const materials = app?.materials ?? [];
   $("#materials").innerHTML = materials.length ? `<strong>Cover letters</strong><ul>${materials.map((m) => `
     <li>${esc(m.created_at.slice(0, 10))} —
@@ -161,9 +173,18 @@ function openForm(app) {
   dialog.showModal();
 }
 
+// The completion checkbox only applies when Take assessment is Y
+function syncAssessmentField() {
+  const required = form.elements.assessment.value === "Y";
+  $("#assessment-completed-field").hidden = !required;
+  if (!required) form.elements.assessment_completed.checked = false;
+}
+form.elements.assessment.addEventListener("change", syncAssessmentField);
+
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const data = Object.fromEntries(new FormData(form));
+  data.assessment_completed = form.elements.assessment_completed.checked; // unchecked boxes aren't in FormData
   const id = data.id;
   delete data.id;
   try {

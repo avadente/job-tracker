@@ -4,8 +4,9 @@ A small, self-hosted job application tracker: Flask + MySQL, with a table view, 
 
 ## Features
 
-- Track company, role, posting URL, location/work mode, salary, contact, resume version, notes
-- Statuses: wishlist → take assessment → applied → interview → offer (plus rejected / withdrawn)
+- Track company, role, posting URL, location/work mode, salary, notes
+- Statuses: wishlist → applied → interview → offer (plus rejected / withdrawn)
+- Take assessment (Y/N) per application, with an "assessment completed" checkbox when it is Y
 - **Table view** with sortable columns, and **Board view** — drag cards between columns to change status
 - Follow-ups whose "next action date" is today or earlier are highlighted
 - Summary stats (total, active, interviewing, offers, follow-ups due)

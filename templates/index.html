@@ -71,6 +71,16 @@
         </label>
         <label>Date applied <input type="date" name="date_applied"></label>
         <label>Application deadline <input type="date" name="deadline"></label>
+        <label>Salary range <input name="salary_range"></label>
+        <label>Take assessment
+          <select name="assessment">
+            <option value="N">N (no assessment)</option>
+            <option value="Y">Y (yes, assessment)</option>
+          </select>
+        </label>
+        <label class="check" id="assessment-completed-field" hidden>
+          <input type="checkbox" name="assessment_completed"> Assessment completed
+        </label>
         <label class="wide">Job posting URL <input type="url" name="url"></label>
         <label>Location <input name="location"></label>
         <label>Work mode
@@ -79,9 +89,6 @@
             {% for m in work_modes %}<option value="{{ m }}">{{ m|capitalize }}</option>{% endfor %}
           </select>
         </label>
-        <label>Salary range <input name="salary_range"></label>
-        <label>Resume version <input name="resume_version"></label>
-        <label class="wide">Contact <input name="contact" placeholder="Name, email, LinkedIn…"></label>
         <label>Next action <input name="next_action" placeholder="e.g. Follow up with recruiter"></label>
         <label>Next action date <input type="date" name="next_action_date"></label>
         <label class="wide">Notes <textarea name="notes" rows="4"></textarea></label>

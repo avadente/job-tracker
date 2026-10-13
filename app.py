@@ -11,14 +11,14 @@ load_dotenv()
 
 app = Flask(__name__)
 
-STATUSES = ["wishlist", "assessment", "applied", "interview", "offer", "rejected", "withdrawn"]
+STATUSES = ["wishlist", "applied", "interview", "offer", "rejected", "withdrawn"]
 # Display names for statuses whose label isn't just the capitalized value
-STATUS_LABELS = {s: s.capitalize() for s in STATUSES} | {"assessment": "Take assessment"}
+STATUS_LABELS = {s: s.capitalize() for s in STATUSES}
 WORK_MODES = ["onsite", "hybrid", "remote"]
 FIELDS = [
     "company", "role", "url", "location", "work_mode", "status", "date_applied", "deadline",
-    "salary_range", "contact", "resume_version", "next_action", "next_action_date", "notes",
-    "job_description",
+    "salary_range", "next_action", "next_action_date", "notes",
+    "assessment", "assessment_completed", "job_description",
 ]
 EXPORT_FIELDS = [f for f in FIELDS if f != "job_description"]
 DATE_FIELDS = {"date_applied", "deadline", "next_action_date"}
@@ -64,7 +64,14 @@ def clean_payload(data):
             raise ValueError(f"Invalid work mode: {value}")
         if field in DATE_FIELDS and value is not None:
             date.fromisoformat(value)
+        if field == "assessment" and value not in ("Y", "N"):
+            raise ValueError("Take assessment must be Y or N")
+        if field == "assessment_completed":
+            value = value in (True, 1, "1", "on", "true")
         out[field] = value
+    # Completion only applies when there is an assessment to take
+    if out.get("assessment") == "N":
+        out["assessment_completed"] = False
     return out
 
 
@@ -120,10 +127,9 @@ def update_application(app_id):
         current = cur.fetchone()
         if current is None:
             return jsonify(error="Not found"), 404
-        # Moving to applied from a pre-application status (wishlist or take assessment) stamps today's
-        # date, unless the date was edited in the same save
+        # Moving from wishlist to applied stamps today's date, unless the date was edited in the same save
         stored_date = current["date_applied"] and current["date_applied"].isoformat()
-        if (current["status"] in ("wishlist", "assessment") and data.get("status") == "applied"
+        if (current["status"] == "wishlist" and data.get("status") == "applied"
                 and data.get("date_applied", stored_date) == stored_date):
             data["date_applied"] = date.today().isoformat()
         assignments = ", ".join(f"{k} = %s" for k in data)
