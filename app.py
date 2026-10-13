@@ -11,7 +11,7 @@ load_dotenv()
 
 app = Flask(__name__)
 
-STATUSES = ["wishlist", "applied", "assessment", "interview", "offer", "rejected", "withdrawn"]
+STATUSES = ["wishlist", "assessment", "applied", "interview", "offer", "rejected", "withdrawn"]
 # Display names for statuses whose label isn't just the capitalized value
 STATUS_LABELS = {s: s.capitalize() for s in STATUSES} | {"assessment": "Take assessment"}
 WORK_MODES = ["onsite", "hybrid", "remote"]
@@ -120,9 +120,10 @@ def update_application(app_id):
         current = cur.fetchone()
         if current is None:
             return jsonify(error="Not found"), 404
-        # Moving from wishlist to applied stamps today's date, unless the date was edited in the same save
+        # Moving to applied from a pre-application status (wishlist or take assessment) stamps today's
+        # date, unless the date was edited in the same save
         stored_date = current["date_applied"] and current["date_applied"].isoformat()
-        if (current["status"] == "wishlist" and data.get("status") == "applied"
+        if (current["status"] in ("wishlist", "assessment") and data.get("status") == "applied"
                 and data.get("date_applied", stored_date) == stored_date):
             data["date_applied"] = date.today().isoformat()
         assignments = ", ".join(f"{k} = %s" for k in data)
